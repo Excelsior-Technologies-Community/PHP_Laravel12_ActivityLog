@@ -1,59 +1,361 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+#  PHP_Laravel12_ActivityLog
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-12-red)
+![PHP](https://img.shields.io/badge/PHP-8.2-blue)
+![Database](https://img.shields.io/badge/Database-MySQL-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+##  Project Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+This project demonstrates how to integrate an **Activity Logging System** in Laravel 12 using the Spatie Laravel Activity Log package.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The system automatically tracks and stores model events such as:
 
-## Learning Laravel
+* Product Created
+* Product Updated
+* Product Deleted
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+All activities are stored in the `activity_log` table and displayed in a web-based interface.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+##  Features
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+* Laravel 12 setup
+* MySQL database integration
+* Automatic activity logging
+* Tracks created, updated, deleted events
+* Stores old and new values
+* Simple Blade UI to display logs
+* Clean and structured project
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+##  Requirements
 
-## Contributing
+* PHP 8.2 or higher
+* Composer
+* MySQL
+* XAMPP / Local Server
+* Laravel 12
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+##  Folder Structure
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```
+app/
+ ├── Models/
+ │    └── Product.php
+ ├── Http/
+ │    └── Controllers/
+ │         └── ProductController.php
 
-## Security Vulnerabilities
+resources/
+ └── views/
+      └── logs.blade.php
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+routes/
+ └── web.php
 
-## License
+database/
+ └── migrations/
+      ├── create_products_table.php
+      └── create_activity_log_table.php
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+#  Installation Guide
+
+## STEP 1: Create Laravel 12 Project
+
+```bash
+composer create-project laravel/laravel Laravel12_ActivityLog
+
+php artisan serve
+```
+
+---
+
+## STEP 2: Configure Database
+
+Update `.env` file:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=activitylog
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Create database:
+
+```sql
+CREATE DATABASE activitylog;
+```
+
+Run migrations:
+
+```bash
+php artisan migrate
+```
+
+---
+
+## STEP 3: Install Activity Log Package
+
+```bash
+composer require spatie/laravel-activitylog
+
+php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-migrations"
+
+php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-config"
+
+php artisan migrate
+```
+
+Now the `activity_log` table is created.
+
+---
+
+## STEP 4: Create Product Model
+
+```bash
+php artisan make:model Product -m
+```
+
+Update migration file:
+
+```php
+public function up(): void
+{
+    Schema::create('products', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->integer('price');
+        $table->timestamps();
+    });
+}
+```
+
+Run migration:
+
+```bash
+php artisan migrate
+```
+
+---
+
+## STEP 5: Enable Activity Logging
+
+File: `app/Models/Product.php`
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+
+class Product extends Model
+{
+    use LogsActivity;
+
+    protected $fillable = ['name', 'price'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->setDescriptionForEvent(
+                fn(string $eventName) => "Product has been {$eventName}"
+            );
+    }
+}
+```
+
+---
+
+## STEP 6: Create Controller
+
+```bash
+php artisan make:controller ProductController
+```
+
+File: `app/Http/Controllers/ProductController.php`
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use Spatie\Activitylog\Models\Activity;
+
+class ProductController extends Controller
+{
+    public function create()
+    {
+        Product::create([
+            'name' => 'Laptop',
+            'price' => 50000
+        ]);
+
+        return "Product Created";
+    }
+
+    public function update()
+    {
+        $product = Product::first();
+        $product->update(['price' => 55000]);
+
+        return "Product Updated";
+    }
+
+    public function delete()
+    {
+        $product = Product::first();
+
+        if ($product) {
+            $product->delete();
+            return "Product Deleted Successfully";
+        }
+
+        return "No Product Found To Delete";
+    }
+
+    public function logs()
+    {
+        $logs = Activity::orderBy('id', 'asc')->get();
+        return view('logs', compact('logs'));
+    }
+}
+```
+
+---
+
+## STEP 7: Define Routes
+
+File: `routes/web.php`
+
+```php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductController;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/create-product', [ProductController::class, 'create']);
+Route::get('/update-product', [ProductController::class, 'update']);
+Route::get('/delete-product', [ProductController::class, 'delete']);
+Route::get('/logs', [ProductController::class, 'logs']);
+```
+
+---
+
+## STEP 8: Create Logs Blade View
+
+File: `resources/views/logs.blade.php`
+
+```blade
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activity Logs</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+<h2>Activity Logs</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Description</th>
+            <th>Event</th>
+            <th>Subject ID</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($logs as $log)
+            <tr>
+                <td>{{ $log->id }}</td>
+                <td>{{ $log->description }}</td>
+                <td>{{ $log->event }}</td>
+                <td>{{ $log->subject_id }}</td>
+                <td>{{ $log->created_at }}</td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="5">No Activity Logs Found</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
+</body>
+</html>
+```
+
+---
+
+## ▶ Run the Application
+
+```bash
+php artisan serve
+```
+
+Visit:
+
+```
+http://127.0.0.1:8000/create-product
+```
+<img width="429" height="102" alt="Screenshot 2026-02-06 170129" src="https://github.com/user-attachments/assets/8616ff2b-0da1-4554-b56f-c08839a53c42" />
+
+```
+http://127.0.0.1:8000/update-product
+```
+<img width="389" height="105" alt="Screenshot 2026-02-06 170145" src="https://github.com/user-attachments/assets/901b8a45-f713-436d-9b19-ea6a43c260d3" />
+
+```
+http://127.0.0.1:8000/delete-product
+```
+<img width="434" height="125" alt="Screenshot 2026-02-06 171639" src="https://github.com/user-attachments/assets/9da46e9e-aecc-4360-b832-6b6130c06034" />
+
+```
+http://127.0.0.1:8000/logs
+```
+<img width="1919" height="327" alt="Screenshot 2026-02-06 170229" src="https://github.com/user-attachments/assets/df83cf23-4f16-4214-9f8d-ed75a8b76ad8" />
+
+---
+
+##  Conclusion
+
+This project successfully demonstrates:
+
+* Laravel 12 installation
+* Database configuration
+* Activity Log integration
+* Automatic model event tracking
+* Log storage in database
+* Log display using Blade view
+
+---
+
+
