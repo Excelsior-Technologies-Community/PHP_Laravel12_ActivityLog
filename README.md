@@ -74,11 +74,7 @@ database/
 
 ```bash
 composer create-project laravel/laravel Laravel12_ActivityLog
-
-php artisan serve
 ```
-
----
 
 ## STEP 2: Configure Database
 
@@ -111,11 +107,14 @@ php artisan migrate
 
 ```bash
 composer require spatie/laravel-activitylog
-
+```
+```
 php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-migrations"
-
+```
+```
 php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-config"
-
+```
+```
 php artisan migrate
 ```
 
