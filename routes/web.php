@@ -7,14 +7,42 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route to create a new product and generate activity log
-Route::get('/create-product', [ProductController::class, 'create']);
+/*
+|--------------------------------------------------------------------------
+| Product Activity Routes
+|--------------------------------------------------------------------------
+*/
 
-// Route to update the first product and log the changes
-Route::get('/update-product', [ProductController::class, 'update']);
+// Create a product
+Route::get('/create-product', [ProductController::class, 'create'])
+    ->name('product.create');
 
-// Route to delete the first product and record the deletion log
-Route::get('/delete-product', [ProductController::class, 'delete']);
+// Update the first product
+Route::get('/update-product', [ProductController::class, 'update'])
+    ->name('product.update');
 
-// Route to display all activity logs in a table view
-Route::get('/logs', [ProductController::class, 'logs']);
+// Delete the first product
+Route::get('/delete-product', [ProductController::class, 'delete'])
+    ->name('product.delete');
+
+
+/*
+|--------------------------------------------------------------------------
+| Activity Log Routes
+|--------------------------------------------------------------------------
+*/
+
+// Activity Log Dashboard
+Route::get('/activity-dashboard', [ProductController::class, 'dashboard'])
+    ->name('activity.dashboard');
+
+// Activity Logs with search and filters
+Route::get('/logs', [ProductController::class, 'logs'])
+    ->name('activity.logs');
+
+Route::get('/logs/export', [ProductController::class, 'exportLogs'])
+    ->name('activity.export');
+
+// Detailed Activity Log
+Route::get('/logs/{id}', [ProductController::class, 'showLog'])
+    ->name('activity.show');
