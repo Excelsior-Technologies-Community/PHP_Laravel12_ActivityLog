@@ -3,6 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 
+/*
+|--------------------------------------------------------------------------
+| Home
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -13,36 +19,88 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
-// Create a product
-Route::get('/create-product', [ProductController::class, 'create'])
-    ->name('product.create');
+// Create product
+Route::get(
+    '/create-product',
+    [ProductController::class, 'create']
+)->name('product.create');
 
-// Update the first product
-Route::get('/update-product', [ProductController::class, 'update'])
-    ->name('product.update');
+// Update product
+Route::get(
+    '/update-product',
+    [ProductController::class, 'update']
+)->name('product.update');
 
-// Delete the first product
-Route::get('/delete-product', [ProductController::class, 'delete'])
-    ->name('product.delete');
-
+// Delete product
+Route::get(
+    '/delete-product',
+    [ProductController::class, 'delete']
+)->name('product.delete');
 
 /*
 |--------------------------------------------------------------------------
-| Activity Log Routes
+| Activity Dashboard
 |--------------------------------------------------------------------------
 */
 
-// Activity Log Dashboard
-Route::get('/activity-dashboard', [ProductController::class, 'dashboard'])
-    ->name('activity.dashboard');
+Route::get(
+    '/activity-dashboard',
+    [ProductController::class, 'dashboard']
+)->name('activity.dashboard');
 
-// Activity Logs with search and filters
-Route::get('/logs', [ProductController::class, 'logs'])
-    ->name('activity.logs');
+/*
+|--------------------------------------------------------------------------
+| Activity Logs
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/logs/export', [ProductController::class, 'exportLogs'])
-    ->name('activity.export');
+// Logs with search and filters
+Route::get(
+    '/logs',
+    [ProductController::class, 'logs']
+)->name('activity.logs');
 
-// Detailed Activity Log
-Route::get('/logs/{id}', [ProductController::class, 'showLog'])
-    ->name('activity.show');
+// CSV export
+Route::get(
+    '/logs/export',
+    [ProductController::class, 'exportLogs']
+)->name('activity.export');
+
+// JSON export
+Route::get(
+    '/logs/export-json',
+    [ProductController::class, 'exportJson']
+)->name('activity.export.json');
+
+/*
+|--------------------------------------------------------------------------
+| Activity Log Management
+|--------------------------------------------------------------------------
+*/
+
+// Delete one activity log
+Route::delete(
+    '/logs/{id}',
+    [ProductController::class, 'destroyLog']
+)->name('activity.destroy');
+
+// Clear all logs
+Route::delete(
+    '/logs',
+    [ProductController::class, 'clearLogs']
+)->name('activity.clear');
+
+/*
+|--------------------------------------------------------------------------
+| Activity Details
+|--------------------------------------------------------------------------
+|
+| Keep this route after the delete route so that
+| /logs/{id} continues to work correctly.
+|
+*/
+
+Route::get(
+    '/logs/{id}',
+    [ProductController::class, 'showLog']
+)->name('activity.show');
