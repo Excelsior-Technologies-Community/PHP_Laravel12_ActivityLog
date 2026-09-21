@@ -5,176 +5,235 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
     <title>Activity Details</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+        rel="stylesheet">
 
 </head>
 
 
 <body class="bg-light">
 
-<div class="container py-5">
+    <div class="container py-5">
 
 
-    <!-- Header -->
+        <!-- ========================================================= -->
+        <!-- Header -->
+        <!-- ========================================================= -->
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
 
-        <div>
+            <div>
 
-            <h2 class="fw-bold">
-                Activity Details
-            </h2>
+                <h2 class="fw-bold">
+                    Activity Details
+                </h2>
 
-            <p class="text-muted mb-0">
-                Detailed information about this activity.
-            </p>
+                <p class="text-muted mb-0">
+                    Detailed information about this activity.
+                </p>
+
+            </div>
+
+
+            <div class="d-flex gap-2">
+
+                <a
+                    href="{{ route('activity.logs') }}"
+                    class="btn btn-dark">
+                    ← Back to Logs
+                </a>
+
+
+                <form
+                    method="POST"
+                    action="{{ route('activity.destroy', $log->id) }}"
+                    onsubmit="return confirm('Delete this activity log?');">
+
+                    @csrf
+
+                    @method('DELETE')
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger">
+                        🗑️ Delete
+                    </button>
+
+                </form>
+
+            </div>
 
         </div>
 
 
-        <a
-            href="{{ route('activity.logs') }}"
-            class="btn btn-dark">
+        <!-- ========================================================= -->
+        <!-- Activity Information -->
+        <!-- ========================================================= -->
 
-            Back to Logs
+        <div class="card shadow-sm border-0 mb-4">
 
-        </a>
+            <div class="card-header bg-primary text-white">
 
-    </div>
+                <h5 class="mb-0">
+                    Activity Information
+                </h5>
 
-
-    <!-- Basic Activity Information -->
-
-    <div class="card shadow-sm mb-4">
-
-        <div class="card-header bg-primary text-white">
-
-            <h5 class="mb-0">
-                Activity Information
-            </h5>
-
-        </div>
+            </div>
 
 
-        <div class="card-body">
+            <div class="card-body">
 
-            <div class="row g-4">
-
-
-                <!-- ID -->
-
-                <div class="col-md-4">
-
-                    <strong>Activity ID</strong>
-
-                    <p class="mt-1">
-                        {{ $log->id }}
-                    </p>
-
-                </div>
+                <div class="row g-4">
 
 
-                <!-- Description -->
+                    <div class="col-md-4">
 
-                <div class="col-md-4">
+                        <strong>
+                            Activity ID
+                        </strong>
 
-                    <strong>Description</strong>
+                        <p class="mt-1">
+                            {{ $log->id }}
+                        </p>
 
-                    <p class="mt-1">
-                        {{ $log->description }}
-                    </p>
-
-                </div>
+                    </div>
 
 
-                <!-- Event -->
+                    <div class="col-md-4">
 
-                <div class="col-md-4">
+                        <strong>
+                            Description
+                        </strong>
 
-                    <strong>Event</strong>
+                        <p class="mt-1">
+                            {{ $log->description }}
+                        </p>
 
-                    <p class="mt-1">
+                    </div>
 
-                        @if($log->event === 'created')
+
+                    <div class="col-md-4">
+
+                        <strong>
+                            Event
+                        </strong>
+
+                        <p class="mt-1">
+
+                            @if($log->event === 'created')
 
                             <span class="badge bg-success">
                                 Created
                             </span>
 
-                        @elseif($log->event === 'updated')
+                            @elseif($log->event === 'updated')
 
                             <span class="badge bg-warning text-dark">
                                 Updated
                             </span>
 
-                        @elseif($log->event === 'deleted')
+                            @elseif($log->event === 'deleted')
 
                             <span class="badge bg-danger">
                                 Deleted
                             </span>
 
-                        @else
+                            @else
 
                             <span class="badge bg-secondary">
                                 {{ $log->event ?? 'N/A' }}
                             </span>
 
-                        @endif
+                            @endif
 
-                    </p>
+                        </p>
 
-                </div>
-
-
-                <!-- Subject Type -->
-
-                <div class="col-md-4">
-
-                    <strong>Subject Type</strong>
-
-                    <p class="mt-1">
-
-                        {{ $log->subject_type ?? 'N/A' }}
-
-                    </p>
-
-                </div>
+                    </div>
 
 
-                <!-- Subject ID -->
+                    <div class="col-md-4">
 
-                <div class="col-md-4">
+                        <strong>
+                            Log Name
+                        </strong>
 
-                    <strong>Subject ID</strong>
+                        <p class="mt-1">
+                            {{ $log->log_name ?? 'N/A' }}
+                        </p>
 
-                    <p class="mt-1">
-
-                        {{ $log->subject_id ?? 'N/A' }}
-
-                    </p>
-
-                </div>
+                    </div>
 
 
-                <!-- Date -->
+                    <div class="col-md-4">
 
-                <div class="col-md-4">
+                        <strong>
+                            Subject Type
+                        </strong>
 
-                    <strong>Activity Date</strong>
+                        <p class="mt-1">
+                            {{ $log->subject_type ?? 'N/A' }}
+                        </p>
 
-                    <p class="mt-1">
+                    </div>
 
-                        {{ $log->created_at->format('d M Y, h:i A') }}
 
-                    </p>
+                    <div class="col-md-4">
+
+                        <strong>
+                            Subject ID
+                        </strong>
+
+                        <p class="mt-1">
+                            {{ $log->subject_id ?? 'N/A' }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <strong>
+                            Causer Type
+                        </strong>
+
+                        <p class="mt-1">
+                            {{ $log->causer_type ?? 'System' }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <strong>
+                            Causer ID
+                        </strong>
+
+                        <p class="mt-1">
+                            {{ $log->causer_id ?? 'System' }}
+                        </p>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <strong>
+                            Activity Date
+                        </strong>
+
+                        <p class="mt-1">
+                            {{ $log->created_at?->format('d M Y, h:i A') }}
+                        </p>
+
+                    </div>
 
                 </div>
 
@@ -182,41 +241,41 @@
 
         </div>
 
-    </div>
+
+        <!-- ========================================================= -->
+        <!-- Change Information -->
+        <!-- ========================================================= -->
+
+        <div class="row g-4">
 
 
-    <!-- Change Information -->
+            <!-- Old Values -->
 
-    <div class="row g-4">
+            <div class="col-md-6">
 
+                <div class="card shadow-sm h-100">
 
-        <!-- Old Values -->
+                    <div class="card-header bg-danger text-white">
 
-        <div class="col-md-6">
+                        <h5 class="mb-0">
+                            Old Values
+                        </h5>
 
-            <div class="card shadow-sm h-100">
-
-                <div class="card-header bg-danger text-white">
-
-                    <h5 class="mb-0">
-                        Old Values
-                    </h5>
-
-                </div>
+                    </div>
 
 
-                <div class="card-body">
+                    <div class="card-body">
 
-                    @php
+                        @php
 
                         $oldValues = $log->properties
-                            ? $log->properties->get('old', [])
-                            : [];
+                        ? $log->properties->get('old', [])
+                        : [];
 
-                    @endphp
+                        @endphp
 
 
-                    @if(!empty($oldValues))
+                        @if(!empty($oldValues))
 
                         <table class="table table-bordered">
 
@@ -224,9 +283,13 @@
 
                                 <tr>
 
-                                    <th>Field</th>
+                                    <th>
+                                        Field
+                                    </th>
 
-                                    <th>Old Value</th>
+                                    <th>
+                                        Old Value
+                                    </th>
 
                                 </tr>
 
@@ -235,29 +298,36 @@
 
                             <tbody>
 
-                            @foreach($oldValues as $field => $value)
+                                @foreach($oldValues as $field => $value)
 
                                 <tr>
 
                                     <td>
+
                                         <strong>
                                             {{ ucfirst(str_replace('_', ' ', $field)) }}
                                         </strong>
+
                                     </td>
 
                                     <td>
-                                        {{ is_array($value) ? json_encode($value) : ($value ?? 'NULL') }}
+
+                                        {{ is_array($value)
+                                            ? json_encode($value)
+                                            : ($value ?? 'NULL')
+                                        }}
+
                                     </td>
 
                                 </tr>
 
-                            @endforeach
+                                @endforeach
 
                             </tbody>
 
                         </table>
 
-                    @else
+                        @else
 
                         <div class="alert alert-secondary mb-0">
 
@@ -265,42 +335,42 @@
 
                         </div>
 
-                    @endif
+                        @endif
+
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
+
+            <!-- New Values -->
+
+            <div class="col-md-6">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-header bg-success text-white">
+
+                        <h5 class="mb-0">
+                            New Values
+                        </h5>
+
+                    </div>
 
 
-        <!-- New Values -->
+                    <div class="card-body">
 
-        <div class="col-md-6">
-
-            <div class="card shadow-sm h-100">
-
-                <div class="card-header bg-success text-white">
-
-                    <h5 class="mb-0">
-                        New Values
-                    </h5>
-
-                </div>
-
-
-                <div class="card-body">
-
-                    @php
+                        @php
 
                         $newValues = $log->properties
-                            ? $log->properties->get('attributes', [])
-                            : [];
+                        ? $log->properties->get('attributes', [])
+                        : [];
 
-                    @endphp
+                        @endphp
 
 
-                    @if(!empty($newValues))
+                        @if(!empty($newValues))
 
                         <table class="table table-bordered">
 
@@ -308,9 +378,13 @@
 
                                 <tr>
 
-                                    <th>Field</th>
+                                    <th>
+                                        Field
+                                    </th>
 
-                                    <th>New Value</th>
+                                    <th>
+                                        New Value
+                                    </th>
 
                                 </tr>
 
@@ -319,29 +393,36 @@
 
                             <tbody>
 
-                            @foreach($newValues as $field => $value)
+                                @foreach($newValues as $field => $value)
 
                                 <tr>
 
                                     <td>
+
                                         <strong>
                                             {{ ucfirst(str_replace('_', ' ', $field)) }}
                                         </strong>
+
                                     </td>
 
                                     <td>
-                                        {{ is_array($value) ? json_encode($value) : ($value ?? 'NULL') }}
+
+                                        {{ is_array($value)
+                                            ? json_encode($value)
+                                            : ($value ?? 'NULL')
+                                        }}
+
                                     </td>
 
                                 </tr>
 
-                            @endforeach
+                                @endforeach
 
                             </tbody>
 
                         </table>
 
-                    @else
+                        @else
 
                         <div class="alert alert-secondary mb-0">
 
@@ -349,7 +430,9 @@
 
                         </div>
 
-                    @endif
+                        @endif
+
+                    </div>
 
                 </div>
 
@@ -357,33 +440,37 @@
 
         </div>
 
-    </div>
+
+        <!-- ========================================================= -->
+        <!-- Raw Properties -->
+        <!-- ========================================================= -->
+
+        <div class="card shadow-sm mt-4">
+
+            <div class="card-header bg-dark text-white">
+
+                <h5 class="mb-0">
+                    Activity Properties
+                </h5>
+
+            </div>
 
 
-    <!-- Raw Properties -->
+            <div class="card-body">
 
-    <div class="card shadow-sm mt-4">
+                <pre
+                    class="bg-light border rounded p-3 mb-0"
+                    style="white-space: pre-wrap;">{{ json_encode(
+                $log->properties,
+                JSON_PRETTY_PRINT
+            ) }}</pre>
 
-        <div class="card-header bg-dark text-white">
-
-            <h5 class="mb-0">
-                Activity Properties
-            </h5>
+            </div>
 
         </div>
 
 
-        <div class="card-body">
-
-            <pre class="bg-light border rounded p-3 mb-0"
-                 style="white-space: pre-wrap;">{{ json_encode($log->properties, JSON_PRETTY_PRINT) }}</pre>
-
-        </div>
-
     </div>
-
-
-</div>
 
 </body>
 
