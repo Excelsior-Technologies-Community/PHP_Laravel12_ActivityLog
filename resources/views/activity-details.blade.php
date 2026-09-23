@@ -27,6 +27,20 @@
         <!-- Header -->
         <!-- ========================================================= -->
 
+        {{-- Flash Messages --}}
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                <strong>✅ Success!</strong> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                <strong>❌ Error!</strong> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
         <div class="d-flex justify-content-between align-items-center mb-4">
 
             <div>
@@ -50,6 +64,16 @@
                     ← Back to Logs
                 </a>
 
+                {{-- 1-Click Rollback & Time Machine Button --}}
+                <form
+                    method="POST"
+                    action="{{ route('activity.rollback', $log->id) }}"
+                    onsubmit="return confirm('Are you sure you want to rollback to this historical state?');">
+                    @csrf
+                    <button type="submit" class="btn btn-warning text-dark fw-bold shadow-sm">
+                        ⏪ 1-Click Rollback
+                    </button>
+                </form>
 
                 <form
                     method="POST"
@@ -62,7 +86,7 @@
 
                     <button
                         type="submit"
-                        class="btn btn-danger">
+                        class="btn btn-outline-danger">
                         🗑️ Delete
                     </button>
 
@@ -438,6 +462,80 @@
 
             </div>
 
+        </div>
+
+
+        <!-- ========================================================= -->
+        <!-- Deep Visual Diff Comparator -->
+        <!-- ========================================================= -->
+        <div class="card shadow-sm mt-4 border-0 rounded-3 overflow-hidden">
+            <div class="card-header text-white p-3" style="background: linear-gradient(135deg, #4f46e5, #06b6d4);">
+                <h5 class="mb-0 text-white font-bold">
+                    🔍 Deep Visual Diff Comparator & Side-by-Side Property Inspector
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                @php
+                    $allFields = array_unique(array_merge(array_keys($oldValues), array_keys($newValues)));
+                @endphp
+
+                @if(!empty($allFields))
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 25%;">Field Name</th>
+                                    <th style="width: 37.5%;" class="bg-danger text-white">Before (Old Historical State)</th>
+                                    <th style="width: 37.5%;" class="bg-success text-white">After (New Modified State)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($allFields as $field)
+                                    @php
+                                        $oldVal = $oldValues[$field] ?? null;
+                                        $newVal = $newValues[$field] ?? null;
+                                        $isChanged = $oldVal !== $newVal;
+                                    @endphp
+                                    <tr class="{{ $isChanged ? 'table-warning' : '' }}">
+                                        <td>
+                                            <strong class="text-uppercase text-secondary fs-7">
+                                                {{ str_replace('_', ' ', $field) }}
+                                            </strong>
+                                            @if($isChanged)
+                                                <span class="badge bg-warning text-dark ms-2">MODIFIED</span>
+                                            @else
+                                                <span class="badge bg-secondary ms-2">UNCHANGED</span>
+                                            @endif
+                                        </td>
+                                        <td class="{{ $isChanged ? 'bg-danger-subtle text-danger font-monospace' : '' }}">
+                                            @if($oldVal !== null)
+                                                <span class="{{ $isChanged ? 'text-decoration-line-through fw-bold' : '' }}">
+                                                    {{ is_array($oldVal) ? json_encode($oldVal) : $oldVal }}
+                                                </span>
+                                            @else
+                                                <em class="text-muted">[NONE / CREATED]</em>
+                                            @endif
+                                        </td>
+                                        <td class="{{ $isChanged ? 'bg-success-subtle text-success font-monospace fw-bold' : '' }}">
+                                            @if($newVal !== null)
+                                                <span>
+                                                    {{ is_array($newVal) ? json_encode($newVal) : $newVal }}
+                                                </span>
+                                            @else
+                                                <em class="text-muted">[DELETED]</em>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="alert alert-info mb-0">
+                        No property differences recorded for this event.
+                    </div>
+                @endif
+            </div>
         </div>
 
 
