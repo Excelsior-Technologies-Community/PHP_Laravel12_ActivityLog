@@ -90,6 +90,24 @@ Route::delete(
     [ProductController::class, 'clearLogs']
 )->name('activity.clear');
 
+// Rollback activity state
+Route::post(
+    '/logs/{id}/rollback',
+    [ProductController::class, 'rollbackLog']
+)->name('activity.rollback');
+
+// Auto Prune Old Logs
+Route::post(
+    '/logs/prune',
+    [ProductController::class, 'pruneLogs']
+)->name('activity.prune');
+
+// Export Archive Zip / CSV
+Route::get(
+    '/logs/export-archive',
+    [ProductController::class, 'exportArchive']
+)->name('activity.export-archive');
+
 /*
 |--------------------------------------------------------------------------
 | Activity Details
