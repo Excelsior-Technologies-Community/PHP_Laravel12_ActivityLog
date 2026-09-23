@@ -71,12 +71,46 @@ class ProductController extends Controller
         $recentActivities = Activity::latest()
             ->paginate(5);
 
+        // Security & Suspicious Activity Telemetry
+        $deletionsLastHour = Activity::where('event', 'deleted')
+            ->where('created_at', '>=', now()->subHour()->toDateTimeString())
+            ->count();
+
+        $suspiciousBulkDeletes = $deletionsLastHour >= 3;
+
+        $priceAnomaliesCount = Activity::where('event', 'updated')
+            ->get()
+            ->filter(function ($log) {
+                $oldPrice = $log->properties['old']['price'] ?? null;
+                $newPrice = $log->properties['attributes']['price'] ?? null;
+                if ($oldPrice && $newPrice && $oldPrice > 0) {
+                    $diffRatio = abs($newPrice - $oldPrice) / $oldPrice;
+                    return $diffRatio > 0.2; // > 20% price shift
+                }
+                return false;
+            })->count();
+
+        $threatLevel = 'SECURE';
+        if ($suspiciousBulkDeletes || $priceAnomaliesCount >= 2) {
+            $threatLevel = 'HIGH THREAT';
+        } elseif ($deletionsLastHour > 0 || $priceAnomaliesCount > 0) {
+            $threatLevel = 'MODERATE WARNING';
+        }
+
+        $securityThreats = [
+            'threat_level' => $threatLevel,
+            'deletions_last_hour' => $deletionsLastHour,
+            'suspicious_bulk_deletes' => $suspiciousBulkDeletes,
+            'price_anomalies_count' => $priceAnomaliesCount,
+        ];
+
         return view('activity-dashboard', [
             'totalActivities' => $totalActivities,
             'created' => $created,
             'updated' => $updated,
             'deleted' => $deleted,
             'recentActivities' => $recentActivities,
+            'securityThreats' => $securityThreats,
         ]);
     }
 
@@ -466,5 +500,132 @@ class ProductController extends Controller
                 'success',
                 $count . ' activity log(s) cleared successfully.'
             );
+    }
+
+    /**
+     * Rollback a historical activity change (1-Click Rollback & Time Machine).
+     */
+    public function rollbackLog($id)
+    {
+        $log = Activity::findOrFail($id);
+
+        $event = $log->event;
+        $subjectType = $log->subject_type;
+        $subjectId = $log->subject_id;
+        $properties = $log->properties;
+
+        if (!$subjectType || !class_exists($subjectType)) {
+            return redirect()->back()->with('error', 'Cannot rollback: Model type is invalid or missing.');
+        }
+
+        if ($event === 'updated') {
+            $oldProps = $properties['old'] ?? null;
+            if (!$oldProps) {
+                return redirect()->back()->with('error', 'No previous state found in activity log to rollback.');
+            }
+
+            $model = $subjectType::find($subjectId);
+            if ($model) {
+                $model->update($oldProps);
+                activity()
+                    ->performedOn($model)
+                    ->log("Rolled back product update to Activity #{$id} snapshot");
+
+                return redirect()->back()->with('success', "Activity #{$id} update successfully rolled back!");
+            } else {
+                return redirect()->back()->with('error', 'Target record no longer exists in database.');
+            }
+        } elseif ($event === 'deleted') {
+            $oldProps = $properties['old'] ?? $properties['attributes'] ?? null;
+            if (!$oldProps) {
+                return redirect()->back()->with('error', 'No attributes found to restore deleted record.');
+            }
+
+            // Restore deleted model
+            $newModel = new $subjectType();
+            $newModel->forceFill($oldProps);
+            if (isset($oldProps['id'])) {
+                $newModel->id = $oldProps['id'];
+            }
+            $newModel->save();
+
+            activity()
+                ->performedOn($newModel)
+                ->log("Restored deleted product from Activity #{$id} snapshot");
+
+            return redirect()->back()->with('success', "Activity #{$id} deleted record successfully restored!");
+        } elseif ($event === 'created') {
+            $model = $subjectType::find($subjectId);
+            if ($model) {
+                $model->delete();
+                activity()
+                    ->log("Undid creation of Product #{$subjectId} from Activity #{$id}");
+
+                return redirect()->back()->with('success', "Creation event #{$id} successfully undone (record deleted)!");
+            } else {
+                return redirect()->back()->with('error', 'Created record is already removed from database.');
+            }
+        }
+
+        return redirect()->back()->with('error', 'Rollback is not supported for this activity event type.');
+    }
+
+    /**
+     * Automatically prune logs older than specified retention days.
+     */
+    public function pruneLogs(Request $request)
+    {
+        $days = (int) $request->get('days', 30);
+        if ($days < 1) {
+            $days = 30;
+        }
+
+        $cutoffDate = now()->subDays($days);
+        $count = Activity::where('created_at', '<=', $cutoffDate)->count();
+
+        Activity::where('created_at', '<=', $cutoffDate)->delete();
+
+        return redirect()->back()->with('success', "Successfully pruned {$count} activity log(s) older than {$days} days.");
+    }
+
+    /**
+     * Download CSV archive of logs older than specified retention days.
+     */
+    public function exportArchive(Request $request)
+    {
+        $days = (int) $request->get('days', 30);
+        $cutoffDate = now()->subDays($days);
+
+        $logs = Activity::where('created_at', '<=', $cutoffDate)->get();
+
+        if ($logs->isEmpty()) {
+            $logs = Activity::all(); // Fallback to all logs if none older than retention
+        }
+
+        $filename = 'activity-archive-' . $days . 'days-' . now()->format('Y-m-d-H-i-s') . '.csv';
+
+        return response()->streamDownload(
+            function () use ($logs) {
+                $handle = fopen('php://output', 'w');
+                fputcsv($handle, ['ID', 'Log Name', 'Description', 'Event', 'Subject Type', 'Subject ID', 'Causer Type', 'Causer ID', 'Date']);
+
+                foreach ($logs as $log) {
+                    fputcsv($handle, [
+                        $log->id,
+                        $log->log_name,
+                        $log->description,
+                        $log->event,
+                        $log->subject_type,
+                        $log->subject_id,
+                        $log->causer_type,
+                        $log->causer_id,
+                        $log->created_at?->format('d-m-Y H:i:s')
+                    ]);
+                }
+                fclose($handle);
+            },
+            $filename,
+            ['Content-Type' => 'text/csv; charset=UTF-8']
+        );
     }
 }

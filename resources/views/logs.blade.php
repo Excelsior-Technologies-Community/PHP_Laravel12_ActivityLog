@@ -489,6 +489,44 @@
 
 
         <!-- ========================================================= -->
+        <!-- Log Retention & Pruning Archive Tool -->
+        <!-- ========================================================= -->
+        <div class="card shadow-sm border-0 mb-4 overflow-hidden">
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-white">
+                    🧹 Log Retention & Automated Pruning Archive Tool
+                </h5>
+                <span class="badge bg-light text-dark">DB Optimization</span>
+            </div>
+            <div class="card-body bg-light">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-6">
+                        <p class="mb-0 text-muted">
+                            Automatically clean up older activity records to optimize database performance. Always export a Zip / CSV archive before running retention cleanup.
+                        </p>
+                    </div>
+                    <div class="col-md-6 d-flex gap-2 justify-content-md-end">
+                        <a href="{{ route('activity.export-archive', ['days' => 30]) }}" class="btn btn-outline-dark fw-bold">
+                            📦 Export Archive (CSV)
+                        </a>
+                        <form method="POST" action="{{ route('activity.prune') }}" onsubmit="return confirm('Prune logs older than selected retention days? Archived backups will be saved.');" class="d-flex gap-1">
+                            @csrf
+                            <select name="days" class="form-select form-select-sm" style="width: auto;">
+                                <option value="30">Older than 30 days</option>
+                                <option value="14">Older than 14 days</option>
+                                <option value="7">Older than 7 days</option>
+                                <option value="1">Older than 1 day</option>
+                            </select>
+                            <button type="submit" class="btn btn-warning fw-bold">
+                                🧹 Prune Old Logs
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
         <!-- Activity Table -->
         <!-- ========================================================= -->
 
@@ -689,6 +727,18 @@
                                             View
                                         </a>
 
+                                        <!-- 1-Click Rollback -->
+                                        <form
+                                            method="POST"
+                                            action="{{ route('activity.rollback', $log->id) }}"
+                                            onsubmit="return confirm('Rollback this activity snapshot?');">
+                                            @csrf
+                                            <button
+                                                type="submit"
+                                                class="btn btn-sm btn-warning text-dark fw-bold">
+                                                ⏪ Rollback
+                                            </button>
+                                        </form>
 
                                         <!-- Delete -->
 

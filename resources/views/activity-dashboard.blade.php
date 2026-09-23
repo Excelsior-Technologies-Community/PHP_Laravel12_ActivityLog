@@ -192,7 +192,66 @@
     </div>
 
 
-    {{-- Recent Activity --}}
+    {{-- Security Threat & Suspicious Activity Detector --}}
+    @if(isset($securityThreats))
+        <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden">
+            <div class="card-header bg-dark text-white p-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fs-4">🚨</span>
+                    <div>
+                        <h5 class="mb-0 text-white">Suspicious Activity & Security Threat Detector</h5>
+                        <small class="text-secondary">Real-time telemetry analysis of system log anomalies</small>
+                    </div>
+                </div>
+                <div>
+                    @if($securityThreats['threat_level'] === 'HIGH THREAT')
+                        <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill">CRITICAL THREAT DETECTED</span>
+                    @elseif($securityThreats['threat_level'] === 'MODERATE WARNING')
+                        <span class="badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill">MODERATE ANOMALY DETECTED</span>
+                    @else
+                        <span class="badge bg-success fs-6 px-3 py-2 rounded-pill">SYSTEM SECURE</span>
+                    @endif
+                </div>
+            </div>
+            <div class="card-body p-4 bg-light">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-white border rounded-3 text-center">
+                            <small class="text-muted d-block mb-1">Deletions in Last Hour</small>
+                            <span class="fs-3 fw-bold {{ $securityThreats['deletions_last_hour'] >= 3 ? 'text-danger' : 'text-dark' }}">
+                                {{ $securityThreats['deletions_last_hour'] }}
+                            </span>
+                            @if($securityThreats['suspicious_bulk_deletes'])
+                                <span class="badge bg-danger-subtle text-danger d-block mt-2">⚠️ High Frequency Deletion Warning</span>
+                            @else
+                                <span class="badge bg-success-subtle text-success d-block mt-2">Normal Deletion Rate</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-white border rounded-3 text-center">
+                            <small class="text-muted d-block mb-1">Price Anomalies Detected</small>
+                            <span class="fs-3 fw-bold {{ $securityThreats['price_anomalies_count'] > 0 ? 'text-warning' : 'text-dark' }}">
+                                {{ $securityThreats['price_anomalies_count'] }}
+                            </span>
+                            @if($securityThreats['price_anomalies_count'] > 0)
+                                <span class="badge bg-warning-subtle text-warning d-block mt-2">⚠️ Large >20% Price Shift Logs</span>
+                            @else
+                                <span class="badge bg-success-subtle text-success d-block mt-2">Price Consistency Stable</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-white border rounded-3 text-center">
+                            <small class="text-muted d-block mb-1">Telemetry Status</small>
+                            <span class="fs-3 fw-bold text-primary">Active Guard</span>
+                            <span class="badge bg-info-subtle text-info d-block mt-2">100% Real-Time Tracking</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
     <div class="card activity-card">
 
         <div class="card-header bg-white border-0 pt-4 px-4">
